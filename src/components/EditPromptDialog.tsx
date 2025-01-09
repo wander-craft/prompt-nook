@@ -80,6 +80,17 @@ const EditPromptDialog = ({
             />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="edit-content">Content</Label>
+            <Textarea
+              id="edit-content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Enter prompt content"
+              className="h-32 font-mono"
+              required
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
             {!isAddingNewCategory ? (
               <div className="flex gap-2">
@@ -114,17 +125,6 @@ const EditPromptDialog = ({
                 </Button>
               </div>
             )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="edit-content">Content</Label>
-            <Textarea
-              id="edit-content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Enter prompt content"
-              className="h-32 font-mono"
-              required
-            />
           </div>
           <Button type="submit" className="w-full">
             Save Changes

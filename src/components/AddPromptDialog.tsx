@@ -72,6 +72,17 @@ const AddPromptDialog = ({ onAdd, categories }: AddPromptDialogProps) => {
             />
           </div>
           <div className="space-y-2">
+            <Label htmlFor="content">Content</Label>
+            <Textarea
+              id="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Enter prompt content"
+              className="h-32 font-mono"
+              required
+            />
+          </div>
+          <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
             {!isAddingNewCategory ? (
               <div className="flex gap-2">
@@ -112,17 +123,6 @@ const AddPromptDialog = ({ onAdd, categories }: AddPromptDialogProps) => {
                 </Button>
               </div>
             )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="content">Content</Label>
-            <Textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="Enter prompt content"
-              className="h-32 font-mono"
-              required
-            />
           </div>
           <Button type="submit" className="w-full">
             Add Prompt

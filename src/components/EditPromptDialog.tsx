@@ -9,19 +9,38 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Prompt {
   id: string;
   title: string;
   content: string;
+  category: string;
 }
 
 interface EditPromptDialogProps {
   prompt: Prompt;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onEdit: (id: string, title: string, content: string) => void;
+  onEdit: (id: string, title: string, content: string, category: string) => void;
 }
+
+const CATEGORIES = [
+  "General",
+  "Writing",
+  "Programming",
+  "Marketing",
+  "Business",
+  "Creative",
+  "Academic",
+  "Other",
+];
 
 const EditPromptDialog = ({
   prompt,
@@ -31,16 +50,18 @@ const EditPromptDialog = ({
 }: EditPromptDialogProps) => {
   const [title, setTitle] = useState(prompt.title);
   const [content, setContent] = useState(prompt.content);
+  const [category, setCategory] = useState(prompt.category);
 
   useEffect(() => {
     setTitle(prompt.title);
     setContent(prompt.content);
+    setCategory(prompt.category);
   }, [prompt]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim() && content.trim()) {
-      onEdit(prompt.id, title.trim(), content.trim());
+      onEdit(prompt.id, title.trim(), content.trim(), category);
       onOpenChange(false);
     }
   };
@@ -61,6 +82,21 @@ const EditPromptDialog = ({
               placeholder="Enter prompt title"
               required
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="edit-content">Content</Label>

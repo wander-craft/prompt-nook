@@ -15,16 +15,18 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/components/ui/use-toast";
+import { Badge } from "@/components/ui/badge";
 
 interface Prompt {
   id: string;
   title: string;
   content: string;
+  category: string;
 }
 
 interface PromptCardProps {
   prompt: Prompt;
-  onEdit: (id: string, title: string, content: string) => void;
+  onEdit: (id: string, title: string, content: string, category: string) => void;
   onDelete: (id: string) => void;
 }
 
@@ -45,7 +47,10 @@ const PromptCard = ({ prompt, onEdit, onDelete }: PromptCardProps) => {
       <Card className="group relative hover:shadow-md transition-shadow">
         <CardHeader className="pb-3">
           <div className="flex justify-between items-start">
-            <CardTitle className="text-xl">{prompt.title}</CardTitle>
+            <div className="space-y-2">
+              <CardTitle className="text-xl">{prompt.title}</CardTitle>
+              <Badge variant="secondary">{prompt.category}</Badge>
+            </div>
             <div className="flex gap-2">
               <Button
                 variant="ghost"

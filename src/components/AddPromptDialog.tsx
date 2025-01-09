@@ -11,22 +11,42 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AddPromptDialogProps {
-  onAdd: (title: string, content: string) => void;
+  onAdd: (title: string, content: string, category: string) => void;
 }
+
+const CATEGORIES = [
+  "General",
+  "Writing",
+  "Programming",
+  "Marketing",
+  "Business",
+  "Creative",
+  "Academic",
+  "Other",
+];
 
 const AddPromptDialog = ({ onAdd }: AddPromptDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [category, setCategory] = useState("General");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim() && content.trim()) {
-      onAdd(title.trim(), content.trim());
+      onAdd(title.trim(), content.trim(), category);
       setTitle("");
       setContent("");
+      setCategory("General");
       setOpen(false);
     }
   };
@@ -53,6 +73,21 @@ const AddPromptDialog = ({ onAdd }: AddPromptDialogProps) => {
               placeholder="Enter prompt title"
               required
             />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Select value={category} onValueChange={setCategory}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="content">Content</Label>

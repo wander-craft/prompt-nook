@@ -20,22 +20,11 @@ interface Prompt {
   category: string;
 }
 
-const CATEGORIES = [
-  "All",
-  "General",
-  "Writing",
-  "Programming",
-  "Marketing",
-  "Business",
-  "Creative",
-  "Academic",
-  "Other",
-];
-
 const Index = () => {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [categories, setCategories] = useState<string[]>(["General"]);
   const { toast } = useToast();
 
   const filteredPrompts = prompts.filter(
@@ -53,6 +42,9 @@ const Index = () => {
       category,
     };
     setPrompts([...prompts, newPrompt]);
+    if (!categories.includes(category)) {
+      setCategories([...categories, category]);
+    }
     toast({
       title: "Prompt added",
       description: "Your prompt has been added to the library.",
@@ -70,6 +62,9 @@ const Index = () => {
         prompt.id === id ? { ...prompt, title, content, category } : prompt
       )
     );
+    if (!categories.includes(category)) {
+      setCategories([...categories, category]);
+    }
     toast({
       title: "Prompt updated",
       description: "Your prompt has been updated successfully.",
@@ -77,7 +72,19 @@ const Index = () => {
   };
 
   const handleDeletePrompt = (id: string) => {
+    const prompt = prompts.find((p) => p.id === id);
     setPrompts(prompts.filter((prompt) => prompt.id !== id));
+    
+    // Remove category if it's not used by any other prompt
+    if (prompt) {
+      const categoryStillInUse = prompts.some(
+        (p) => p.id !== id && p.category === prompt.category
+      );
+      if (!categoryStillInUse) {
+        setCategories(categories.filter((cat) => cat !== prompt.category));
+      }
+    }
+    
     toast({
       title: "Prompt deleted",
       description: "Your prompt has been removed from the library.",
@@ -89,7 +96,7 @@ const Index = () => {
       <div className="max-w-5xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <h1 className="text-4xl font-bold">Prompt Library</h1>
-          <AddPromptDialog onAdd={handleAddPrompt} />
+          <AddPromptDialog onAdd={handleAddPrompt} categories={categories} />
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4">
@@ -107,7 +114,8 @@ const Index = () => {
               <SelectValue placeholder="Select category" />
             </SelectTrigger>
             <SelectContent>
-              {CATEGORIES.map((category) => (
+              <SelectItem value="All">All Categories</SelectItem>
+              {categories.map((category) => (
                 <SelectItem key={category} value={category}>
                   {category}
                 </SelectItem>

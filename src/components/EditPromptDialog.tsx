@@ -31,17 +31,6 @@ interface EditPromptDialogProps {
   onEdit: (id: string, title: string, content: string, category: string) => void;
 }
 
-const CATEGORIES = [
-  "General",
-  "Writing",
-  "Programming",
-  "Marketing",
-  "Business",
-  "Creative",
-  "Academic",
-  "Other",
-];
-
 const EditPromptDialog = ({
   prompt,
   open,
@@ -51,18 +40,25 @@ const EditPromptDialog = ({
   const [title, setTitle] = useState(prompt.title);
   const [content, setContent] = useState(prompt.content);
   const [category, setCategory] = useState(prompt.category);
+  const [newCategory, setNewCategory] = useState("");
+  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
 
   useEffect(() => {
     setTitle(prompt.title);
     setContent(prompt.content);
     setCategory(prompt.category);
+    setNewCategory("");
+    setIsAddingNewCategory(false);
   }, [prompt]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim() && content.trim()) {
-      onEdit(prompt.id, title.trim(), content.trim(), category);
-      onOpenChange(false);
+      const finalCategory = isAddingNewCategory ? newCategory.trim() : category;
+      if (finalCategory) {
+        onEdit(prompt.id, title.trim(), content.trim(), finalCategory);
+        onOpenChange(false);
+      }
     }
   };
 
@@ -85,18 +81,39 @@ const EditPromptDialog = ({
           </div>
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {!isAddingNewCategory ? (
+              <div className="flex gap-2">
+                <Input
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  placeholder="Enter category"
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAddingNewCategory(true)}
+                >
+                  New
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  placeholder="Enter new category"
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAddingNewCategory(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="edit-content">Content</Label>

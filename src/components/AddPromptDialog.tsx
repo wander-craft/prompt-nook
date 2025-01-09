@@ -21,33 +21,30 @@ import {
 
 interface AddPromptDialogProps {
   onAdd: (title: string, content: string, category: string) => void;
+  categories: string[];
 }
 
-const CATEGORIES = [
-  "General",
-  "Writing",
-  "Programming",
-  "Marketing",
-  "Business",
-  "Creative",
-  "Academic",
-  "Other",
-];
-
-const AddPromptDialog = ({ onAdd }: AddPromptDialogProps) => {
+const AddPromptDialog = ({ onAdd, categories }: AddPromptDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [category, setCategory] = useState("General");
+  const [category, setCategory] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [isAddingNewCategory, setIsAddingNewCategory] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (title.trim() && content.trim()) {
-      onAdd(title.trim(), content.trim(), category);
-      setTitle("");
-      setContent("");
-      setCategory("General");
-      setOpen(false);
+      const finalCategory = isAddingNewCategory ? newCategory.trim() : category;
+      if (finalCategory) {
+        onAdd(title.trim(), content.trim(), finalCategory);
+        setTitle("");
+        setContent("");
+        setCategory("");
+        setNewCategory("");
+        setIsAddingNewCategory(false);
+        setOpen(false);
+      }
     }
   };
 
@@ -76,18 +73,45 @@ const AddPromptDialog = ({ onAdd }: AddPromptDialogProps) => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
-            <Select value={category} onValueChange={setCategory}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {!isAddingNewCategory ? (
+              <div className="flex gap-2">
+                <Select value={category} onValueChange={setCategory}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAddingNewCategory(true)}
+                >
+                  New
+                </Button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  value={newCategory}
+                  onChange={(e) => setNewCategory(e.target.value)}
+                  placeholder="Enter new category"
+                  required
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAddingNewCategory(false)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            )}
           </div>
           <div className="space-y-2">
             <Label htmlFor="content">Content</Label>

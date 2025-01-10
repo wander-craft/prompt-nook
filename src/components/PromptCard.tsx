@@ -48,8 +48,8 @@ const PromptCard = ({ prompt, onEdit, onDelete }: PromptCardProps) => {
         <CardHeader className="pb-3">
           <div className="flex justify-between items-start">
             <div className="space-y-2">
-              <CardTitle className="text-xl">{prompt.title}</CardTitle>
-              <Badge variant="secondary">{prompt.category}</Badge>
+              <CardTitle className="text-md">{prompt.title}</CardTitle>
+              
             </div>
             <div className="flex gap-2">
               <Button
@@ -100,7 +100,11 @@ const PromptCard = ({ prompt, onEdit, onDelete }: PromptCardProps) => {
           <pre className="whitespace-pre-wrap font-mono text-sm text-muted-foreground">
             {prompt.content}
           </pre>
+
+    
         </CardContent>
+     
+        
       </Card>
 
       <EditPromptDialog

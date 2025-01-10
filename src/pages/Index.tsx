@@ -5,6 +5,7 @@ import AddPromptDialog from "@/components/AddPromptDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
+import { usePersistedState } from "@/hooks/usePersistedState";
 import {
   Select,
   SelectContent,
@@ -21,12 +22,11 @@ interface Prompt {
 }
 
 const Index = () => {
-  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [prompts, setPrompts] = usePersistedState<Prompt[]>("prompts", []);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [categories, setCategories] = useState<string[]>(["General"]);
+  const [categories, setCategories] = usePersistedState<string[]>("categories", ["General"]);
   const { toast } = useToast();
-
   const filteredPrompts = prompts.filter(
     (prompt) =>
       (selectedCategory === "All" || prompt.category === selectedCategory) &&
@@ -91,11 +91,20 @@ const Index = () => {
     });
   };
 
+  const groupedPrompts = filteredPrompts.reduce((acc, prompt) => {
+    const category = prompt.category;
+    if (!acc[category]) {
+      acc[category] = [];
+    }
+    acc[category].push(prompt);
+    return acc;
+  }, {} as Record<string, Prompt[]>);
+
   return (
-    <div className="min-h-screen p-8 bg-background">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <div className="min-h-screen p-8 bg-[url('/images/app-bg.jpeg')] bg-cover bg-center bg-fixed">
+      <div className="max-w-5xl mx-auto space-y-8 bg-background/95 p-8 rounded-lg">
         <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold">Prompt Library</h1>
+          <h1 className="text-4xl font-bold">IDE Prompt Library</h1>
           <AddPromptDialog onAdd={handleAddPrompt} categories={categories} />
         </div>
 
@@ -124,17 +133,21 @@ const Index = () => {
           </Select>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filteredPrompts.map((prompt) => (
-            <PromptCard
-              key={prompt.id}
-              prompt={prompt}
-              onEdit={handleEditPrompt}
-              onDelete={handleDeletePrompt}
-            />
-          ))}
-        </div>
-
+        {Object.entries(groupedPrompts).map(([category, prompts]) => (
+          <div key={category} className="space-y-4">
+            <h3 className="text-md font-normal">{category}</h3>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {prompts.map((prompt) => (
+                <PromptCard
+                  key={prompt.id}
+                  prompt={prompt}
+                  onEdit={handleEditPrompt}
+                  onDelete={handleDeletePrompt}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
         {filteredPrompts.length === 0 && (
           <div className="text-center py-12 text-muted-foreground">
             {prompts.length === 0

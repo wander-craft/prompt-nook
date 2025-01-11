@@ -27,6 +27,56 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [categories, setCategories] = usePersistedState<string[]>("categories", ["General"]);
   const { toast } = useToast();
+
+  const exportData = () => {
+    const data = {
+      prompts,
+      categories
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'prompt-nook-data.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast({
+      title: "Export successful",
+      description: "Your prompts and categories have been exported"
+    });
+  };
+
+  const importData = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target?.result as string);
+          if (data.prompts && data.categories) {
+            setPrompts(data.prompts);
+            setCategories(data.categories);
+            toast({
+              title: "Import successful",
+              description: "Your prompts and categories have been imported"
+            });
+          } else {
+            throw new Error("Invalid data format");
+          }
+        } catch (error) {
+          toast({
+            title: "Import failed",
+            description: "The file format is invalid",
+            variant: "destructive"
+          });
+        }
+      };
+      reader.readAsText(file);
+    }
+  };
+
   const filteredPrompts = prompts.filter(
     (prompt) =>
       (selectedCategory === "All" || prompt.category === selectedCategory) &&
@@ -131,6 +181,41 @@ const Index = () => {
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="flex items-center space-x-4 mb-4">
+          <Input
+            placeholder="Search prompts..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="max-w-sm"
+          />
+          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select category" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All Categories</SelectItem>
+              {categories.map((category) => (
+                <SelectItem key={category} value={category}>
+                  {category}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant="outline" onClick={exportData}>
+            Export
+          </Button>
+          <Button variant="outline" onClick={() => document.getElementById('import-file')?.click()}>
+            Import
+          </Button>
+          <input
+            type="file"
+            id="import-file"
+            accept=".json"
+            onChange={importData}
+            style={{ display: 'none' }}
+          />
         </div>
 
         {Object.entries(groupedPrompts).map(([category, prompts]) => (

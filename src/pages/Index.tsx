@@ -155,7 +155,21 @@ const Index = () => {
       <div className="max-w-5xl mx-auto space-y-8 bg-background/95 p-8 rounded-lg">
         <div className="flex items-center justify-between">
           <h1 className="text-4xl font-bold">IDE Prompt Library</h1>
-          <AddPromptDialog onAdd={handleAddPrompt} categories={categories} />
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={exportData}>
+              Export
+            </Button>
+            <div className="relative">
+              <input
+                type="file"
+                onChange={importData}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                accept=".json"
+              />
+              <Button variant="outline">Import</Button>
+            </div>
+            <AddPromptDialog onAdd={handleAddPrompt} categories={categories} />
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4">
@@ -181,41 +195,6 @@ const Index = () => {
               ))}
             </SelectContent>
           </Select>
-        </div>
-
-        <div className="flex items-center space-x-4 mb-4">
-          <Input
-            placeholder="Search prompts..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="max-w-sm"
-          />
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All Categories</SelectItem>
-              {categories.map((category) => (
-                <SelectItem key={category} value={category}>
-                  {category}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button variant="outline" onClick={exportData}>
-            Export
-          </Button>
-          <Button variant="outline" onClick={() => document.getElementById('import-file')?.click()}>
-            Import
-          </Button>
-          <input
-            type="file"
-            id="import-file"
-            accept=".json"
-            onChange={importData}
-            style={{ display: 'none' }}
-          />
         </div>
 
         {Object.entries(groupedPrompts).map(([category, prompts]) => (

@@ -26,6 +26,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [categories, setCategories] = usePersistedState<string[]>("categories", ["General"]);
+  const [lastUpdated, setLastUpdated] = usePersistedState<string>("lastUpdated", new Date().toISOString());
   const { toast } = useToast();
 
   const exportData = () => {
@@ -92,6 +93,7 @@ const Index = () => {
       category,
     };
     setPrompts([...prompts, newPrompt]);
+    setLastUpdated(new Date().toISOString());
     if (!categories.includes(category)) {
       setCategories([...categories, category]);
     }
@@ -124,7 +126,7 @@ const Index = () => {
   const handleDeletePrompt = (id: string) => {
     const prompt = prompts.find((p) => p.id === id);
     setPrompts(prompts.filter((prompt) => prompt.id !== id));
-    
+    setLastUpdated(new Date().toISOString());
     // Remove category if it's not used by any other prompt
     if (prompt) {
       const categoryStillInUse = prompts.some(
@@ -134,7 +136,6 @@ const Index = () => {
         setCategories(categories.filter((cat) => cat !== prompt.category));
       }
     }
-    
     toast({
       title: "Prompt deleted",
       description: "Your prompt has been removed from the library.",
@@ -154,7 +155,7 @@ const Index = () => {
     <div className="min-h-screen p-8 bg-[url('/images/app-bg.jpeg')] bg-cover bg-center bg-fixed">
       <div className="max-w-5xl mx-auto space-y-8 bg-background/95 p-8 rounded-lg">
         <div className="flex items-center justify-between">
-          <h1 className="text-4xl font-bold">IDE Prompt Library</h1>
+          <h1 className="text-4xl font-bold">IDE Chat: Prompt Library</h1>
           <div className="flex items-center gap-4">
             <Button variant="outline" onClick={exportData}>
               Export
@@ -168,7 +169,12 @@ const Index = () => {
               />
               <Button variant="outline">Import</Button>
             </div>
-            <AddPromptDialog onAdd={handleAddPrompt} categories={categories} />
+            <AddPromptDialog
+              categories={categories}
+              onAdd={(title, content, category) => {
+                handleAddPrompt(title, content, category);
+              }}
+            />
           </div>
         </div>
 
@@ -195,6 +201,10 @@ const Index = () => {
               ))}
             </SelectContent>
           </Select>
+        </div>
+
+        <div className="text-sm text-muted-foreground">
+          {prompts.length} {prompts.length === 1 ? 'prompt' : 'prompts'} • Last updated: {new Date(lastUpdated).toLocaleString()}
         </div>
 
         {Object.entries(groupedPrompts).map(([category, prompts]) => (

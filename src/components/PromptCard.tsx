@@ -49,17 +49,23 @@ const PromptCard = ({ prompt, onEdit, onDelete }: PromptCardProps) => {
           <div className="flex justify-between items-start">
             <div className="space-y-2">
               <CardTitle className="text-md">{prompt.title}</CardTitle>
-              
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleCopy}
-                className="h-8 w-8"
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <pre className="whitespace-pre-wrap font-mono text-sm text-muted-foreground mb-4">
+            {prompt.content}
+          </pre>
+          <div className="flex justify-between gap-2 pb-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleCopy}
+              className="h-8 w-8"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
+            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <Button
                 variant="ghost"
                 size="icon"
@@ -95,16 +101,7 @@ const PromptCard = ({ prompt, onEdit, onDelete }: PromptCardProps) => {
               </AlertDialog>
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <pre className="whitespace-pre-wrap font-mono text-sm text-muted-foreground">
-            {prompt.content}
-          </pre>
-
-    
         </CardContent>
-     
-        
       </Card>
 
       <EditPromptDialog

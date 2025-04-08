@@ -16,13 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { Badge } from "@/components/ui/badge";
-
-interface Prompt {
-  id: string;
-  title: string;
-  content: string;
-  category: string;
-}
+import { type Prompt } from "@/services/api";
 
 interface PromptCardProps {
   prompt: Prompt;
@@ -49,28 +43,22 @@ const PromptCard = ({ prompt, onEdit, onDelete }: PromptCardProps) => {
           <div className="flex justify-between items-start">
             <div className="space-y-2">
               <CardTitle className="text-md">{prompt.title}</CardTitle>
+              <Badge variant="secondary">{prompt.category}</Badge>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <pre className="whitespace-pre-wrap font-mono text-sm text-muted-foreground mb-4">
-            {prompt.content}
-          </pre>
-          <div className="flex justify-between gap-2 pb-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleCopy}
-              className="h-8 w-8"
-            >
-              <Copy className="h-4 w-4" />
-            </Button>
-            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex gap-2">
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setShowEditDialog(true)}
                 className="h-8 w-8"
+                onClick={handleCopy}
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => setShowEditDialog(true)}
               >
                 <Edit className="h-4 w-4" />
               </Button>
@@ -92,7 +80,7 @@ const PromptCard = ({ prompt, onEdit, onDelete }: PromptCardProps) => {
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() => onDelete(prompt.id)}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      className="bg-red-500 hover:bg-red-600"
                     >
                       Delete
                     </AlertDialogAction>
@@ -101,14 +89,21 @@ const PromptCard = ({ prompt, onEdit, onDelete }: PromptCardProps) => {
               </AlertDialog>
             </div>
           </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+            {prompt.content}
+          </p>
         </CardContent>
       </Card>
 
       <EditPromptDialog
-        prompt={prompt}
         open={showEditDialog}
         onOpenChange={setShowEditDialog}
-        onEdit={onEdit}
+        prompt={prompt}
+        onEdit={(title, content, category) =>
+          onEdit(prompt.id, title, content, category)
+        }
       />
     </>
   );

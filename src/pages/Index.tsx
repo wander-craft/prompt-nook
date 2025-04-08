@@ -169,6 +169,7 @@ const Index = () => {
                 description: "Your prompts and categories have been exported"
               });
             }}>
+              <Download className="h-4 w-4 mr-2" />
               Export
             </Button>
             <div className="relative">
@@ -242,163 +243,10 @@ const Index = () => {
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 accept=".json"
               />
-              <Button variant="outline">Import</Button>
-            </div>
-            <div className="flex flex-col space-y-2 md:space-y-0 md:flex-row md:items-center md:space-x-2">
-              <div className="flex items-center space-x-2">
-                <Button 
-                  variant="default" 
-                  className="flex items-center gap-2"
-                  onClick={async () => {
-                    try {
-                      // Save all prompts to Supabase
-                      console.log('Saving all prompts via Save button...');
-                      await saveAllPrompts(prompts);
-                      
-                      // Refresh prompts from the database to ensure we have the latest data
-                      const updatedPrompts = await fetchPrompts();
-                      console.log('Refreshed prompts after save:', updatedPrompts.length);
-                      
-                      setUnsavedChanges(false);
-                      setLastUpdated(new Date().toISOString());
-                      toast({
-                        title: "Success",
-                        description: "All prompts saved successfully to database",
-                      });
-                    } catch (error) {
-                      console.error('Error saving prompts:', error);
-                      toast({
-                        title: "Error",
-                        description: error instanceof Error ? error.message : "Failed to save prompts",
-                        variant: "destructive",
-                      });
-                    }
-                  }}
-                >
-                  <Save className="h-4 w-4" />
-                  Save
-                </Button>
-                <AddPromptDialog
-                  categories={categories}
-                  onAdd={(title, content, category) => {
-                    handleAddPrompt(title, content, category);
-                    setUnsavedChanges(true);
-                  }}
-                />
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button
-                  onClick={() => document.getElementById('file-input')?.click()}
-                  variant="outline"
-                  className="flex items-center"
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  Import
-                </Button>
-                <Button
-                  onClick={() => {
-                    const data = {
-                      prompts,
-                      categories
-                    };
-                    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'prompt-nook-data.json';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    toast({
-                      title: "Export successful",
-                      description: "Your prompts and categories have been exported"
-                    });
-                  }}
-                  variant="outline"
-                  className="flex items-center"
-                >
-                  <Download className="mr-2 h-4 w-4" />
-                  Export
-                </Button>
-                <input
-                  id="file-input"
-                  type="file"
-                  accept=".json"
-                  className="hidden"
-                  onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    if (file) {
-                      const reader = new FileReader();
-                      reader.onload = async (e) => {
-                        try {
-                          const data = JSON.parse(e.target?.result as string);
-                          console.log('Imported data:', data);
-                          
-                          if (data.prompts && data.categories) {
-                            // First, show a loading toast
-                            toast({
-                              title: "Importing prompts",
-                              description: "Please wait while we save your prompts..."
-                            });
-                            
-                            // Prepare imported prompts - ensure they don't have conflicting IDs
-                            const importedPrompts = data.prompts.map((prompt: any) => ({
-                              // Remove id to ensure we create new prompts in Supabase
-                              title: prompt.title || 'Untitled Prompt',
-                              content: prompt.content || '',
-                              category: prompt.category || 'General'
-                            }));
-                            
-                            console.log('Prepared imported prompts:', importedPrompts.length);
-                            
-                            // Save each prompt individually to ensure they're properly saved
-                            for (const prompt of importedPrompts) {
-                              try {
-                                console.log('Creating individual prompt:', prompt.title);
-                                await createPrompt(prompt);
-                              } catch (promptError) {
-                                console.error('Error creating individual prompt:', promptError);
-                              }
-                            }
-                            
-                            // Then fetch the latest data from Supabase
-                            const updatedPrompts = await fetchPrompts();
-                            console.log('Fetched prompts after import:', updatedPrompts.length);
-                            
-                            // Update categories
-                            const uniqueCategories = [...new Set([...categories, ...data.categories])];
-                            setCategories(uniqueCategories);
-                            setUnsavedChanges(false);
-                            setLastUpdated(new Date().toISOString());
-                            
-                            toast({
-                              title: "Import successful",
-                              description: `${importedPrompts.length} prompts have been imported and saved to database`
-                            });
-                          } else {
-                            throw new Error("Invalid data format");
-                          }
-                        } catch (error) {
-                          console.error('Error importing prompts:', error);
-                          toast({
-                            title: "Import failed",
-                            description: error instanceof Error ? error.message : "The file format is invalid",
-                            variant: "destructive"
-                          });
-                        }
-                      };
-                      reader.readAsText(file);
-                    }
-                  }}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  accept=".json"
-                />
-                <Button variant="outline">Import</Button>
-              </div>
-            </div>
-            <div className="mt-2 text-sm text-muted-foreground bg-muted p-2 rounded-md">
-              <p><strong>Note:</strong> All prompts are now stored in Supabase. Use the Save button to ensure your changes are saved to the database.</p>
+              <Button variant="outline">
+                <Upload className="h-4 w-4 mr-2" />
+                Import
+              </Button>
             </div>
             <Button
               variant="default" 
@@ -440,6 +288,10 @@ const Index = () => {
               }}
             />
           </div>
+        </div>
+
+        <div className="mt-2 text-sm text-muted-foreground bg-muted p-2 rounded-md">
+          <p><strong>Note:</strong> All prompts are now stored in Supabase. Use the Save button to ensure your changes are saved to the database.</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4">

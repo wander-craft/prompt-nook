@@ -59,6 +59,9 @@ const AddPromptDialog = ({ onAdd, categories }: AddPromptDialogProps) => {
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add New Prompt</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Create a new prompt by filling out the form below.
+          </p>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">

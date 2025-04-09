@@ -22,9 +22,10 @@ import {
 interface AddPromptDialogProps {
   onAdd: (title: string, content: string, category: string) => void;
   categories: string[];
+  customTrigger?: React.ReactNode;
 }
 
-const AddPromptDialog = ({ onAdd, categories }: AddPromptDialogProps) => {
+const AddPromptDialog = ({ onAdd, categories, customTrigger }: AddPromptDialogProps) => {
   const [open, setOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -51,10 +52,12 @@ const AddPromptDialog = ({ onAdd, categories }: AddPromptDialogProps) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus className="mr-2 h-4 w-4" />
-          Add Prompt
-        </Button>
+        {customTrigger || (
+          <Button variant="outline" className="w-full sm:w-auto">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Prompt
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
